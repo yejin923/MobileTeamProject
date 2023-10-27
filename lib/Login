@@ -1,0 +1,151 @@
+import 'package:flutter/material.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: '로그인과 회원가입',
+      home: LogInRegisterPage(),
+    );
+  }
+}
+
+class LogInRegisterPage extends StatefulWidget {
+  @override
+  State<LogInRegisterPage> createState() => _LogInRegisterPageState();
+}
+
+class _LogInRegisterPageState extends State<LogInRegisterPage> {
+  Map<String, String> users = {}; // 사용자 정보를 저장하는 맵
+
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  bool isLoggedIn = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: isLoggedIn ? null : AppBar( // 로그인이 되었을 때는 AppBar를 제거
+        title: Text('로그인과 회원가입'),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: isLoggedIn ? MainScreen() : LogInScreen(),
+      ),
+    );
+  }
+
+  Widget LogInScreen() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        TextField(
+          controller: emailController,
+          decoration: InputDecoration(labelText: '이메일을 입력하시오'),
+        ),
+        TextField(
+          controller: passwordController,
+          decoration: InputDecoration(labelText: '비밀번호를 입력하시오'),
+          obscureText: true,
+        ),
+        ElevatedButton(
+          onPressed: () {
+            String enteredEmail = emailController.text;
+            String enteredPassword = passwordController.text;
+
+            if (users.containsKey(enteredEmail) && users[enteredEmail] == enteredPassword) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('로그인이 성공했습니다')),
+              );
+              setState(() {
+                isLoggedIn = true;
+              });
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('이메일 또는 비밀번호가 잘못되었습니다')),
+              );
+            }
+          },
+          child: Text('로그인'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterScreen(users)));
+          },
+          child: Text('회원가입'),
+        ),
+      ],
+    );
+  }
+}
+
+class RegisterScreen extends StatefulWidget {
+  final Map<String, String> users;
+
+  RegisterScreen(this.users);
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  TextEditingController registerEmailController = TextEditingController();
+  TextEditingController registerPasswordController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('회원가입'),
+        centerTitle: true,
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          TextField(
+            controller: registerEmailController,
+            decoration: InputDecoration(labelText: '이메일을 입력하시오'),
+          ),
+          TextField(
+            controller: registerPasswordController,
+            decoration: InputDecoration(labelText: '비밀번호를 입력하시오'),
+            obscureText: true,
+          ),
+          ElevatedButton(
+            onPressed: () {
+              String newEmail = registerEmailController.text;
+              String newPassword = registerPasswordController.text;
+
+              widget.users[newEmail] = newPassword;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('회원가입에 성공했습니다')),
+              );
+
+              Navigator.pop(context);
+            },
+            child: Text('회원가입'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MainScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar( // MainScreen에 새로운 앱 바
+        title: Text('다음에 우리가 해야할 메인 타이틀'),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: Text('어서와!'),
+      ),
+    );
+  }
+}
